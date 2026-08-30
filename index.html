@@ -80,7 +80,11 @@
     <div class="person-info-card">
       <h3>اطلاعات</h3>
       <p id="person-info-text"></p>
-      <button class="btn-secondary btn-small" onclick="editPersonInfo()">ویرایش اطلاعات</button>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;">
+        <button class="btn-secondary btn-small" onclick="editPersonName()">ویرایش نام</button>
+        <button class="btn-secondary btn-small" onclick="editPersonInfo()">ویرایش اطلاعات</button>
+        <button class="btn-danger btn-small" onclick="deletePerson()">حذف کامل شخص</button>
+      </div>
     </div>
 
     <div class="voices-section">
