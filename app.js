@@ -311,5 +311,16 @@ function deleteVoice(voiceId) {
 // ==================== شروع برنامه ====================
 document.addEventListener("DOMContentLoaded", () => {
   renderHome();
-  showPage("home-page");
+
+  // صفحه خوش‌آمدگویی به مدت ۴ ثانیه نمایش داده می‌شود
+  setTimeout(() => {
+    const splash = document.getElementById("splash-screen");
+    splash.classList.add("hide");
+
+    // بعد از محو شدن، صفحه اصلی را نشان بده
+    setTimeout(() => {
+      splash.style.display = "none";
+      showPage("home-page");
+    }, 600);
+  }, 4000);
 });
