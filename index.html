@@ -16,7 +16,6 @@
     <div class="splash-content">
       <h1>BOOS ONE</h1>
       <p>Welcome to Management</p>
-      <div class="splash-loader"></div>
     </div>
   </div>
 
@@ -26,34 +25,48 @@
       <h1>BOOS ONE</h1>
       <p class="subtitle">مدیریت اطلاعات و ویس‌ها</p>
     </header>
-
-    <div class="sections-grid" id="sections-grid">
-      <!-- دکمه‌ها با جاوااسکریپت ساخته می‌شوند -->
-    </div>
+    <div class="sections-grid" id="sections-grid"></div>
   </div>
 
-  <!-- صفحه لیست افراد هر بخش -->
+  <!-- صفحه لیست افراد / یادآوری -->
   <div id="section-page" class="page">
     <header class="header">
       <button class="btn-back" onclick="goHome()">← بازگشت</button>
       <h1 id="section-title">عنوان بخش</h1>
     </header>
 
-    <div class="toolbar">
-      <button class="btn-primary" onclick="showAddPersonForm()">+ افزودن شخص جدید</button>
-    </div>
-
-    <div id="add-person-form" class="form-card hidden">
-      <input type="text" id="person-name" placeholder="نام شخص / رکورد" />
-      <textarea id="person-info" placeholder="اطلاعات و توضیحات..." rows="3"></textarea>
-      <div class="form-actions">
-        <button class="btn-primary" onclick="savePerson()">ذخیره</button>
-        <button class="btn-secondary" onclick="hideAddPersonForm()">انصراف</button>
+    <!-- مخصوص بخش‌های عادی -->
+    <div id="normal-section-ui">
+      <div class="toolbar">
+        <button class="btn-primary" onclick="showAddPersonForm()">+ افزودن شخص جدید</button>
       </div>
+      <div id="add-person-form" class="form-card hidden">
+        <input type="text" id="person-name" placeholder="نام شخص / رکورد" />
+        <textarea id="person-info" placeholder="اطلاعات و توضیحات..." rows="3"></textarea>
+        <div class="form-actions">
+          <button class="btn-primary" onclick="savePerson()">ذخیره</button>
+          <button class="btn-secondary" onclick="hideAddPersonForm()">انصراف</button>
+        </div>
+      </div>
+      <div id="persons-list" class="persons-list"></div>
     </div>
 
-    <div id="persons-list" class="persons-list">
-      <!-- لیست افراد اینجا نمایش داده می‌شود -->
+    <!-- مخصوص بخش یادآوری -->
+    <div id="reminder-section-ui" class="hidden">
+      <div class="toolbar">
+        <button class="btn-primary" onclick="showAddReminderForm()">+ یادآوری جدید</button>
+      </div>
+      <div id="add-reminder-form" class="form-card hidden">
+        <input type="text" id="reminder-title" placeholder="عنوان یادآوری (مثلاً قرار با فلانی)" />
+        <textarea id="reminder-note" placeholder="توضیحات بیشتر..." rows="2"></textarea>
+        <label class="form-label">تاریخ یادآوری:</label>
+        <input type="date" id="reminder-date" />
+        <div class="form-actions">
+          <button class="btn-primary" onclick="saveTextReminder()">ذخیره یادآوری</button>
+          <button class="btn-secondary" onclick="hideAddReminderForm()">انصراف</button>
+        </div>
+      </div>
+      <div id="reminders-list" class="persons-list"></div>
     </div>
   </div>
 
@@ -75,15 +88,11 @@
         <h3>ویس‌ها</h3>
         <button class="btn-primary btn-small" onclick="startRecording()">🎤 ضبط ویس جدید</button>
       </div>
-
       <div id="recording-status" class="recording-status hidden">
         <span class="rec-dot"></span> در حال ضبط...
         <button class="btn-danger btn-small" onclick="stopRecording()">توقف</button>
       </div>
-
-      <div id="voices-list" class="voices-list">
-        <!-- لیست ویس‌ها -->
-      </div>
+      <div id="voices-list" class="voices-list"></div>
     </div>
   </div>
 
