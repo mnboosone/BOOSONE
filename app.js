@@ -255,6 +255,22 @@ function updateVoiceReminderDays(voiceId, daysStr) {
   }
 }
 
+function editPersonName() {
+  const data = getData();
+  const person = (data[currentSection] || []).find(p => p.id === currentPersonId);
+  if (!person) return;
+  const newName = prompt("نام جدید را وارد کنید:", person.name || "");
+  if (newName === null) return;
+  const trimmed = newName.trim();
+  if (!trimmed) {
+    alert("نام نمی‌تواند خالی باشد.");
+    return;
+  }
+  person.name = trimmed;
+  saveData(data);
+  document.getElementById("person-title").textContent = person.name;
+}
+
 function editPersonInfo() {
   const data = getData();
   const person = (data[currentSection] || []).find(p => p.id === currentPersonId);
@@ -264,6 +280,15 @@ function editPersonInfo() {
   person.info = newInfo.trim();
   saveData(data);
   document.getElementById("person-info-text").textContent = person.info || "اطلاعاتی ثبت نشده است.";
+}
+
+function deletePerson() {
+  if (!confirm("آیا مطمئن هستید که می‌خواهید این شخص و همه ویس‌هایش را کامل حذف کنید؟\nاین کار قابل برگشت نیست.")) return;
+  const data = getData();
+  data[currentSection] = (data[currentSection] || []).filter(p => p.id !== currentPersonId);
+  saveData(data);
+  currentPersonId = null;
+  goToSection();
 }
 
 // ==================== ضبط و پخش ====================
