@@ -416,3 +416,95 @@ body {
     padding: 18px 10px;
   }
 }
+
+/* ========== یادآوری ========== */
+.form-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+  color: #5c4033;
+}
+
+.voice-reminder-box {
+  margin-top: 8px;
+  padding: 8px 10px;
+  background: #f8f1e3;
+  border-radius: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+}
+
+.voice-reminder-box label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.voice-reminder-box input[type="number"] {
+  width: 55px;
+  padding: 4px 6px;
+  border: 1px solid #e0d0b0;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.reminder-item {
+  background: linear-gradient(145deg, #faf6ef, #f5e8c7);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 8px rgba(139, 115, 85, 0.12);
+}
+
+.reminder-item.due {
+  border: 2px solid #c07050;
+  background: linear-gradient(145deg, #fff0e8, #f5e0d0);
+}
+
+.reminder-item .rem-title {
+  font-weight: bold;
+  font-size: 1.05rem;
+  margin-bottom: 4px;
+}
+
+.reminder-item .rem-meta {
+  font-size: 0.85rem;
+  color: #8b7355;
+  margin-bottom: 6px;
+}
+
+.reminder-item .rem-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.badge-due {
+  display: inline-block;
+  background: #c07050;
+  color: #fff;
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-right: 6px;
+}
+
+.badge-soon {
+  display: inline-block;
+  background: #d4c4a8;
+  color: #4a3728;
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-right: 6px;
+}
+
+.hidden {
+  display: none !important;
+}
+
