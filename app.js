@@ -90,7 +90,7 @@ function renderHome() {
 function openSection(sectionName) {
   // اگر روی هوش مصنوعی کلیک شد
   if (sectionName === "هوش مصنوعی") {
-    alert("صفحه هوش مصنوعی در مرحله بعد ساخته می‌شود.\nفعلاً دکمه با موفقیت اضافه شده است.");
+    showPage("ai-page");
     return;
   }
 
@@ -114,7 +114,7 @@ function openSection(sectionName) {
   showPage("section-page");
 }
 
-// ==================== لیست افراد (بخش‌های عادی) ====================
+// ==================== لیست افراد ====================
 function renderPersonsList() {
   const data = getData();
   const list = data[currentSection] || [];
@@ -510,6 +510,33 @@ function deleteTextReminder(id) {
   data._textReminders = (data._textReminders || []).filter(r => r.id !== id);
   saveData(data);
   renderRemindersList();
+}
+
+// ==================== هوش مصنوعی (موقت) ====================
+function sendMessage() {
+  const input = document.getElementById("chat-input");
+  const message = input.value.trim();
+  if (!message) return;
+
+  const messagesDiv = document.getElementById("chat-messages");
+
+  // نمایش پیام کاربر
+  const userMsg = document.createElement("div");
+  userMsg.style.cssText = "background:#e8d5b5; padding:10px 14px; border-radius:12px; margin-bottom:10px; text-align:right;";
+  userMsg.textContent = message;
+  messagesDiv.appendChild(userMsg);
+
+  // پاک کردن ورودی
+  input.value = "";
+
+  // پیام موقت سیستم
+  const botMsg = document.createElement("div");
+  botMsg.style.cssText = "background:#fff; padding:10px 14px; border-radius:12px; margin-bottom:10px; text-align:right; border:1px solid #e0d0b0;";
+  botMsg.textContent = "فعلاً فقط ظاهر صفحه آماده است. در مرحله بعد به هوش مصنوعی وصل می‌شویم.";
+  messagesDiv.appendChild(botMsg);
+
+  // اسکرول به پایین
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
 
 // ==================== شروع برنامه ====================
