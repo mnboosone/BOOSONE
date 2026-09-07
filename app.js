@@ -6,6 +6,10 @@ const SECTIONS = [
   "متفرقه", "وکیل", "یادآوری", "ضایعات"
 ];
 
+// ==================== کلید Gemini ====================
+// فقط این خط را عوض کن و کلید خودت را بگذار
+const GEMINI_API_KEY = "AQ.Ab8RN6I41O3tOLP49EQ9m2ggT-7i-9GaICfO0DTQ0qQJSxXETg";
+
 let currentSection = null;
 let currentPersonId = null;
 let mediaRecorder = null;
@@ -88,7 +92,6 @@ function renderHome() {
 
 // ==================== باز کردن بخش ====================
 function openSection(sectionName) {
-  // اگر روی هوش مصنوعی کلیک شد
   if (sectionName === "هوش مصنوعی") {
     showPage("ai-page");
     return;
@@ -512,31 +515,81 @@ function deleteTextReminder(id) {
   renderRemindersList();
 }
 
-// ==================== هوش مصنوعی (موقت) ====================
-function sendMessage() {
+// ==================== هوش مصنوعی BOOS ONE ====================
+async function sendMessage() {
   const input = document.getElementById("chat-input");
   const message = input.value.trim();
   if (!message) return;
 
+  if (GEMINI_API_KEY === "YOUR_API_KEY_HERE") {
+    alert("لطفاً ابتدا کلید API را در فایل app.js قرار دهید.");
+    return;
+  }
+
   const messagesDiv = document.getElementById("chat-messages");
 
-  // نمایش پیام کاربر
+  // پیام کاربر
   const userMsg = document.createElement("div");
   userMsg.style.cssText = "background:#e8d5b5; padding:10px 14px; border-radius:12px; margin-bottom:10px; text-align:right;";
   userMsg.textContent = message;
   messagesDiv.appendChild(userMsg);
 
-  // پاک کردن ورودی
   input.value = "";
-
-  // پیام موقت سیستم
-  const botMsg = document.createElement("div");
-  botMsg.style.cssText = "background:#fff; padding:10px 14px; border-radius:12px; margin-bottom:10px; text-align:right; border:1px solid #e0d0b0;";
-  botMsg.textContent = "فعلاً فقط ظاهر صفحه آماده است. در مرحله بعد به هوش مصنوعی وصل می‌شویم.";
-  messagesDiv.appendChild(botMsg);
-
-  // اسکرول به پایین
   messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+  // پیام در حال پردازش
+  const loadingMsg = document.createElement("div");
+  loadingMsg.id = "loading-msg";
+  loadingMsg.style.cssText = "background:#fff; padding:10px 14px; border-radius:12px; margin-bottom:10px; text-align:right; border:1px solid #e0d0b0; color:#8b7355;";
+  loadingMsg.textContent = "در حال پردازش...";
+  messagesDiv.appendChild(loadingMsg);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{
+            role: "user",
+            parts: [{
+              text: `تو یک دستیار هوشمند به نام «BOOS ONE» هستی که مخصوص مسائل حقوقی، ملکی و محاسبات زمین و ملک طراحی شده‌ای.
+همیشه مودب و دقیق جواب بده.
+اگر سؤال محاسباتی بود دقیق حساب کن.
+اگر سؤال حقوقی بود با احتیاط جواب بده و یادآوری کن که برای تصمیم نهایی بهتر است با وکیل مشورت شود.
+هرگز نگو از چه سیستمی استفاده می‌کنی. فقط خودت را BOOS ONE معرفی کن.
+
+سؤال کاربر: ${message}`
+            }]
+          }]
+        })
+      }
+    );
+
+    const data = await response.json();
+    document.getElementById("loading-msg")?.remove();
+
+    const botMsg = document.createElement("div");
+    botMsg.style.cssText = "background:#fff; padding:10px 14px; border-radius:12px; margin-bottom:10px; text-align:right; border:1px solid #e0d0b0; white-space:pre-wrap;";
+
+    if (data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
+      botMsg.textContent = data.candidates[0].content.parts[0].text;
+    } else {
+      botMsg.textContent = "متأسفانه نتوانستم پاسخ مناسبی پیدا کنم. لطفاً دوباره تلاش کنید.";
+    }
+
+    messagesDiv.appendChild(botMsg);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+  } catch (error) {
+    document.getElementById("loading-msg")?.remove();
+    const errorMsg = document.createElement("div");
+    errorMsg.style.cssText = "background:#fff0f0; padding:10px 14px; border-radius:12px; margin-bottom:10px; text-align:right; border:1px solid #e8b4b4; color:#8b3030;";
+    errorMsg.textContent = "خطا در ارتباط با سرور. لطفاً اتصال اینترنت و کلید API را بررسی کنید.";
+    messagesDiv.appendChild(errorMsg);
+  }
 }
 
 // ==================== شروع برنامه ====================
