@@ -516,6 +516,7 @@ function deleteTextReminder(id) {
 }
 
 // ==================== هوش مصنوعی BOOS ONE ====================
+// ==================== هوش مصنوعی BOOS ONE ====================
 async function sendMessage() {
   const input = document.getElementById("chat-input");
   const message = input.value.trim();
@@ -542,10 +543,13 @@ async function sendMessage() {
 
   try {
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent",
       {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": GEMINI_API_KEY
+        },
         body: JSON.stringify({
           contents: [{
             role: "user",
@@ -577,7 +581,7 @@ async function sendMessage() {
       botMsg.style.color = "#8b3030";
       botMsg.textContent = "خطا: " + (data.error.message || JSON.stringify(data.error));
     } else {
-      botMsg.textContent = "پاسخی دریافت نشد. جزئیات: " + JSON.stringify(data).substring(0, 300);
+      botMsg.textContent = "پاسخی دریافت نشد.";
     }
 
     messagesDiv.appendChild(botMsg);
