@@ -17,14 +17,18 @@ function getData() {
   const raw = localStorage.getItem("boosone_data");
   if (!raw) {
     const initial = {};
-    SECTIONS.forEach(s => initial[s] = []);
-    initial._textReminders = []; // یادآوری‌های متنی مستقل
+    SECTIONS.forEach(s => {
+      if (s !== "هوش مصنوعی") initial[s] = [];
+    });
+    initial._textReminders = [];
     localStorage.setItem("boosone_data", JSON.stringify(initial));
     return initial;
   }
   const data = JSON.parse(raw);
   if (!data._textReminders) data._textReminders = [];
-  SECTIONS.forEach(s => { if (!data[s]) data[s] = []; });
+  SECTIONS.forEach(s => {
+    if (s !== "هوش مصنوعی" && !data[s]) data[s] = [];
+  });
   return data;
 }
 
@@ -84,6 +88,12 @@ function renderHome() {
 
 // ==================== باز کردن بخش ====================
 function openSection(sectionName) {
+  // اگر روی هوش مصنوعی کلیک شد
+  if (sectionName === "هوش مصنوعی") {
+    alert("صفحه هوش مصنوعی در مرحله بعد ساخته می‌شود.\nفعلاً دکمه با موفقیت اضافه شده است.");
+    return;
+  }
+
   currentSection = sectionName;
   document.getElementById("section-title").textContent = sectionName;
 
@@ -339,15 +349,13 @@ function saveNewVoice(base64Data) {
 
 function playVoice(voiceId) {
   const data = getData();
-  // جستجو در بخش فعلی
   let voice = null;
   let person = (data[currentSection] || []).find(p => p.id === currentPersonId);
   if (person) voice = (person.voices || []).find(v => v.id === voiceId);
 
-  // اگر پیدا نشد (مثلاً از صفحه یادآوری) در همه بخش‌ها جستجو کن
   if (!voice) {
     for (const sec of SECTIONS) {
-      if (sec === "یادآوری") continue;
+      if (sec === "یادآوری" || sec === "هوش مصنوعی") continue;
       for (const p of (data[sec] || [])) {
         voice = (p.voices || []).find(v => v.id === voiceId);
         if (voice) break;
@@ -376,7 +384,6 @@ function showAddReminderForm() {
   document.getElementById("add-reminder-form").classList.remove("hidden");
   document.getElementById("reminder-title").value = "";
   document.getElementById("reminder-note").value = "";
-  // تاریخ پیش‌فرض: فردا
   const tomorrow = addDays(new Date(), 1);
   document.getElementById("reminder-date").value = tomorrow.toISOString().split("T")[0];
 }
@@ -411,7 +418,6 @@ function collectAllReminders() {
   const now = new Date();
   const items = [];
 
-  // یادآوری‌های متنی
   (data._textReminders || []).forEach(r => {
     const remindDate = new Date(r.remindAt);
     const isDue = remindDate <= now;
@@ -426,9 +432,8 @@ function collectAllReminders() {
     });
   });
 
-  // ویس‌هایی که تیک یادآوری خوردن
   SECTIONS.forEach(sec => {
-    if (sec === "یادآوری") return;
+    if (sec === "یادآوری" || sec === "هوش مصنوعی") return;
     (data[sec] || []).forEach(person => {
       (person.voices || []).forEach(voice => {
         if (voice.reminder && voice.reminder.enabled && voice.reminder.remindAt) {
@@ -451,7 +456,6 @@ function collectAllReminders() {
     });
   });
 
-  // مرتب‌سازی: موعدرسیده‌ها اول، بعد بر اساس تاریخ
   items.sort((a, b) => {
     if (a.isDue !== b.isDue) return a.isDue ? -1 : 1;
     return new Date(a.remindAt) - new Date(b.remindAt);
@@ -516,7 +520,6 @@ document.addEventListener("DOMContentLoaded", () => {
     navigator.serviceWorker.register("./sw.js").catch(() => {});
   }
 
-  // صفحه خوش‌آمدگویی ۴ ثانیه
   setTimeout(() => {
     const splash = document.getElementById("splash-screen");
     if (splash) {
@@ -525,7 +528,6 @@ document.addEventListener("DOMContentLoaded", () => {
         splash.style.display = "none";
         showPage("home-page");
 
-        // اگر یادآوری موعدرسیده وجود دارد، خبر بده
         const due = collectAllReminders().filter(r => r.isDue);
         if (due.length > 0) {
           setTimeout(() => {
