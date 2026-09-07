@@ -521,11 +521,6 @@ async function sendMessage() {
   const message = input.value.trim();
   if (!message) return;
 
-  if (GEMINI_API_KEY === "YOUR_API_KEY_HERE") {
-    alert("لطفاً ابتدا کلید API را در فایل app.js قرار دهید.");
-    return;
-  }
-
   const messagesDiv = document.getElementById("chat-messages");
 
   // پیام کاربر
@@ -555,10 +550,10 @@ async function sendMessage() {
           contents: [{
             role: "user",
             parts: [{
-              text: `تو یک دستیار هوشمند به نام «BOOS ONE» هستی که مخصوص مسائل حقوقی، ملکی و محاسبات زمین و ملک طراحی شده‌ای.
+              text: `تو یک دستیار هوشمند به نام «BOOS ONE» هستی که مخصوص مسائل حقوقی، ملکی، آهن‌آلات، خودرو، کارخانه و محاسبات طراحی شده‌ای.
 همیشه مودب و دقیق جواب بده.
 اگر سؤال محاسباتی بود دقیق حساب کن.
-اگر سؤال حقوقی بود با احتیاط جواب بده و یادآوری کن که برای تصمیم نهایی بهتر است با وکیل مشورت شود.
+اگر سؤال حقوقی بود با احتیاط جواب بده و بگو برای تصمیم نهایی بهتر است با متخصص مشورت شود.
 هرگز نگو از چه سیستمی استفاده می‌کنی. فقط خودت را BOOS ONE معرفی کن.
 
 سؤال کاربر: ${message}`
@@ -576,8 +571,13 @@ async function sendMessage() {
 
     if (data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
       botMsg.textContent = data.candidates[0].content.parts[0].text;
+    } else if (data.error) {
+      botMsg.style.background = "#fff0f0";
+      botMsg.style.borderColor = "#e8b4b4";
+      botMsg.style.color = "#8b3030";
+      botMsg.textContent = "خطا: " + (data.error.message || JSON.stringify(data.error));
     } else {
-      botMsg.textContent = "متأسفانه نتوانستم پاسخ مناسبی پیدا کنم. لطفاً دوباره تلاش کنید.";
+      botMsg.textContent = "پاسخی دریافت نشد. جزئیات: " + JSON.stringify(data).substring(0, 300);
     }
 
     messagesDiv.appendChild(botMsg);
@@ -587,11 +587,10 @@ async function sendMessage() {
     document.getElementById("loading-msg")?.remove();
     const errorMsg = document.createElement("div");
     errorMsg.style.cssText = "background:#fff0f0; padding:10px 14px; border-radius:12px; margin-bottom:10px; text-align:right; border:1px solid #e8b4b4; color:#8b3030;";
-    errorMsg.textContent = "خطا در ارتباط با سرور. لطفاً اتصال اینترنت و کلید API را بررسی کنید.";
+    errorMsg.textContent = "خطای ارتباط: " + error.message;
     messagesDiv.appendChild(errorMsg);
   }
 }
-
 // ==================== شروع برنامه ====================
 document.addEventListener("DOMContentLoaded", () => {
   renderHome();
