@@ -1,9 +1,10 @@
 // ==================== داده‌ها و وضعیت ====================
 const SECTIONS = [
-  "هوش مصنوعی",
   "املاک", "کلنگی", "زمین", "کارخانه",
   "آهن", "LC", "اتومبیل", "فلزات رنگی",
-  "متفرقه", "وکیل", "یادآوری", "ضایعات"
+  "متفرقه", "وکیل", "یادآوری", "ضایعات",
+  "تهاتر",
+  "هوش مصنوعی"
 ];
 
 // ==================== اتصال امن BOOS ONE AI ====================
@@ -99,6 +100,10 @@ function renderHome() {
     const btn = document.createElement("button");
 
     btn.className = "section-btn";
+    if (name === "هوش مصنوعی") {
+      btn.classList.add("ai-btn");
+    }
+
     btn.textContent = name;
 
     btn.onclick = () => openSection(name);
