@@ -1,0 +1,46 @@
+name: Build BOOS ONE APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Bubblewrap
+        run: npm install -g @bubblewrap/cli
+
+      - name: Create Android project
+        run: |
+          mkdir android
+          cd android
+          yes | bubblewrap init --manifest "https://mnboosone.github.io/BOOSONE/manifest.json"
+
+      - name: Build APK
+        working-directory: android
+        run: |
+          yes "" | bubblewrap build --skipPwaValidation --skipSigning
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: BOOS-ONE-APK
+          path: android/app-release-unsigned-aligned.apk
