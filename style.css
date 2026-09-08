@@ -414,14 +414,39 @@ body {
   font-size: 1rem;
 }
 
-/* ========== ریسپانسیو ========== */
+/* ========== ریسپانسیو موبایل (رفع مشکل ریز بودن دکمه‌ها) ========== */
+@media (max-width: 480px) {
+  .sections-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .section-btn {
+    padding: 20px 10px;
+    font-size: 1.12rem;
+    min-height: 68px;
+    border-radius: 14px;
+  }
+
+  .section-btn.ai-btn {
+    grid-column: 1 / -1;
+    max-width: 70%;
+    justify-self: center;
+    font-size: 1.15rem;
+    min-height: 64px;
+  }
+}
+
 @media (max-width: 360px) {
   .sections-grid {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
-  
+
   .section-btn {
-    padding: 18px 10px;
+    padding: 18px 14px;
+    font-size: 1.15rem;
+    min-height: 64px;
   }
 
   .section-btn.ai-btn {
