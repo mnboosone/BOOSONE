@@ -544,95 +544,94 @@ function updateVoiceReminderDays(
 }
 
 // ==================== ویرایش شخص ====================
-function editPersonName() {
+// ==================== هوش مصنوعی BOOS ONE ====================
+async function sendMessage() {
+  const input = document.getElementById("chat-input");
+  const message = input.value.trim();
 
-  const data = getData();
+  if (!message) return;
 
-  const person =
-    (data[currentSection] || [])
-      .find(p => p.id === currentPersonId);
+  const messagesDiv = document.getElementById("chat-messages");
 
-  if (!person) return;
+  // پیام کاربر
+  const userMsg = document.createElement("div");
+  userMsg.style.cssText =
+    "background:#e8d5b5; padding:10px 14px; border-radius:12px; margin-bottom:10px; text-align:right;";
+  userMsg.textContent = message;
+  messagesDiv.appendChild(userMsg);
 
-  const newName =
-    prompt(
-      "نام جدید را وارد کنید:",
-      person.name || ""
-    );
+  input.value = "";
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
 
-  if (newName === null) return;
+  // پیام در حال پردازش
+  const loadingMsg = document.createElement("div");
+  loadingMsg.id = "loading-msg";
+  loadingMsg.style.cssText =
+    "background:#fff; padding:10px 14px; border-radius:12px; margin-bottom:10px; text-align:right; border:1px solid #e0d0b0; color:#8b7355;";
+  loadingMsg.textContent = "در حال پردازش...";
+  messagesDiv.appendChild(loadingMsg);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
 
-  const trimmed =
-    newName.trim();
+  try {
+    const response = await fetch(AI_PROXY_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ message })
+    });
 
-  if (!trimmed) {
+    let data;
+    try {
+      data = await response.json();
+    } catch {
+      throw new Error("پاسخ معتبر از سرور دریافت نشد.");
+    }
 
-    alert("نام نمی‌تواند خالی باشد.");
+    // حذف پیام لودینگ
+    document.getElementById("loading-msg")?.remove();
 
-    return;
+    const botMsg = document.createElement("div");
+    botMsg.style.cssText =
+      "background:#fff; padding:10px 14px; border-radius:12px; margin-bottom:10px; text-align:right; border:1px solid #e0d0b0; white-space:pre-wrap;";
+
+    if (!response.ok || data?.error) {
+      botMsg.style.background = "#fff0f0";
+      botMsg.style.borderColor = "#e8b4b4";
+      botMsg.style.color = "#8b3030";
+
+      // تبدیل خطا به رشته خوانا
+      let errorText = "ارتباط با سرویس BOOS ONE ناموفق بود.";
+
+      if (typeof data?.error === "string") {
+        errorText = data.error;
+      } else if (data?.error?.message) {
+        errorText = data.error.message;
+      } else if (data?.error) {
+        errorText = JSON.stringify(data.error);
+      }
+
+      botMsg.textContent = "خطا: " + errorText;
+    } else if (typeof data?.text === "string" && data.text.trim()) {
+      botMsg.textContent = data.text;
+    } else {
+      botMsg.textContent = "پاسخی دریافت نشد.";
+    }
+
+    messagesDiv.appendChild(botMsg);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+  } catch (error) {
+    document.getElementById("loading-msg")?.remove();
+
+    const errorMsg = document.createElement("div");
+    errorMsg.style.cssText =
+      "background:#fff0f0; padding:10px 14px; border-radius:12px; margin-bottom:10px; text-align:right; border:1px solid #e8b4b4; color:#8b3030;";
+    errorMsg.textContent =
+      "خطای ارتباط: " + (error?.message || "ارتباط با سرویس برقرار نشد.");
+    messagesDiv.appendChild(errorMsg);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
   }
-
-  person.name = trimmed;
-
-  saveData(data);
-
-  document
-    .getElementById("person-title")
-    .textContent =
-      person.name;
-}
-
-function editPersonInfo() {
-
-  const data = getData();
-
-  const person =
-    (data[currentSection] || [])
-      .find(p => p.id === currentPersonId);
-
-  if (!person) return;
-
-  const newInfo =
-    prompt(
-      "اطلاعات جدید را وارد کنید:",
-      person.info || ""
-    );
-
-  if (newInfo === null) return;
-
-  person.info =
-    newInfo.trim();
-
-  saveData(data);
-
-  document
-    .getElementById("person-info-text")
-    .textContent =
-      person.info ||
-      "اطلاعاتی ثبت نشده است.";
-}
-
-function deletePerson() {
-
-  if (
-    !confirm(
-      "آیا مطمئن هستید که می‌خواهید این شخص و همه ویس‌هایش را کامل حذف کنید؟\nاین کار قابل برگشت نیست."
-    )
-  ) return;
-
-  const data = getData();
-
-  data[currentSection] =
-    (data[currentSection] || [])
-      .filter(
-        p => p.id !== currentPersonId
-      );
-
-  saveData(data);
-
-  currentPersonId = null;
-
-  goToSection();
 }
 
 // ==================== ضبط صدا ====================
