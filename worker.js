@@ -35,19 +35,15 @@ BOOS ONE مخصوص مسائل زیر است:
 `;
 
 function jsonResponse(data, status = 200) {
-  return new Response(
-    JSON.stringify(data),
-    {
-      status,
-      headers: corsHeaders
-    }
-  );
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: corsHeaders
+  });
 }
 
 export default {
   async fetch(request, env) {
-
-    // پاسخ به درخواست OPTIONS برای CORS
+    // CORS preflight
     if (request.method === "OPTIONS") {
       return new Response(null, {
         status: 204,
@@ -55,154 +51,113 @@ export default {
       });
     }
 
-    // Health Check برای وقتی URL را در مرورگر باز می‌کنی
+    // Health check
     if (request.method === "GET") {
       return jsonResponse({
         ok: true,
         service: "BOOS ONE AI",
         worker: "boosone-ai",
-        status: "online"
+        status: "online",
+        time: new Date().toISOString()
       });
     }
 
-    // فقط POST برای چت
+    // فقط POST مجاز است
     if (request.method !== "POST") {
-      return jsonResponse(
-        {
-          error: "Method not allowed"
-        },
-        405
-      );
+      return jsonResponse({ error: "Method not allowed" }, 405);
     }
 
     try {
-
-      // بررسی Secret
+      // بررسی وجود Secret
       if (!env.GEMINI_API_KEY_boosone) {
         return jsonResponse(
-          {
-            error: "Gemini API key is not configured in Worker Secret."
-          },
+          { error: "Gemini API key is not configured in Worker Secret." },
           500
         );
       }
 
-      // دریافت اطلاعات کاربر
+      // خواندن بدنه درخواست
       let body;
-
       try {
         body = await request.json();
-      } catch (error) {
-        return jsonResponse(
-          {
-            error: "Invalid JSON request."
-          },
-          400
-        );
+      } catch {
+        return jsonResponse({ error: "Invalid JSON request." }, 400);
       }
 
       const message = body?.message;
 
-      // بررسی پیام
       if (!message || typeof message !== "string" || !message.trim()) {
-        return jsonResponse(
-          {
-            error: "Message is required."
-          },
-          400
-        );
+        return jsonResponse({ error: "Message is required." }, 400);
       }
 
       const userMessage = message.trim();
 
-      // ارسال درخواست به Gemini
+      // درخواست به Gemini با system_instruction استاندارد
       const geminiResponse = await fetch(
         "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",
         {
           method: "POST",
-
           headers: {
             "Content-Type": "application/json",
             "x-goog-api-key": env.GEMINI_API_KEY_boosone
           },
-
           body: JSON.stringify({
+            system_instruction: {
+              parts: [{ text: SYSTEM_PROMPT }]
+            },
             contents: [
               {
                 role: "user",
-
-                parts: [
-                  {
-                    text: `${SYSTEM_PROMPT}
-
-سؤال کاربر:
-
-${userMessage}`
-                  }
-                ]
+                parts: [{ text: userMessage }]
               }
-            ]
+            ],
+            generationConfig: {
+              temperature: 0.7,
+              maxOutputTokens: 2048
+            }
           })
         }
       );
 
-      // دریافت پاسخ Gemini
       const geminiData = await geminiResponse.json();
 
       // اگر Gemini خطا داد
       if (!geminiResponse.ok) {
+        console.error("Gemini API Error:", JSON.stringify(geminiData));
 
-        console.error(
-          "Gemini API Error:",
-          JSON.stringify(geminiData)
-        );
+        // همیشه پیام خطا را به صورت رشته برگردان
+        let errorMessage = "خطا در ارتباط با سرویس هوش مصنوعی.";
 
-        const errorMessage =
-          geminiData?.error?.message ||
-          "خطا در ارتباط با سرویس هوش مصنوعی.";
+        if (geminiData?.error?.message) {
+          errorMessage = geminiData.error.message;
+        } else if (typeof geminiData?.error === "string") {
+          errorMessage = geminiData.error;
+        } else if (geminiData?.error) {
+          errorMessage = JSON.stringify(geminiData.error);
+        }
 
-        return jsonResponse(
-          {
-            error: errorMessage
-          },
-          geminiResponse.status
-        );
+        return jsonResponse({ error: errorMessage }, geminiResponse.status || 500);
       }
 
-      // استخراج متن پاسخ Gemini
-      const text =
-        geminiData?.candidates?.[0]?.content?.parts
-          ?.map(part => part?.text || "")
-          .join("")
-          .trim();
+      // استخراج متن پاسخ
+      const text = geminiData?.candidates?.[0]?.content?.parts
+        ?.map(part => part?.text || "")
+        .join("")
+        .trim();
 
-      // اگر پاسخ خالی بود
       if (!text) {
-
-        console.error(
-          "Empty Gemini response:",
-          JSON.stringify(geminiData)
-        );
-
+        console.error("Empty Gemini response:", JSON.stringify(geminiData));
         return jsonResponse(
-          {
-            error: "پاسخی از هوش مصنوعی دریافت نشد."
-          },
+          { error: "پاسخی از هوش مصنوعی دریافت نشد." },
           502
         );
       }
 
       // پاسخ موفق
-      return jsonResponse({
-        text: text
-      });
+      return jsonResponse({ text });
 
     } catch (error) {
-
-      console.error(
-        "Worker Error:",
-        error?.stack || error?.message || String(error)
-      );
+      console.error("Worker Error:", error?.stack || error?.message || String(error));
 
       return jsonResponse(
         {
