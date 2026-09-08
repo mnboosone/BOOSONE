@@ -166,6 +166,14 @@ body {
   }
 }
 
+/* دکمه هوش مصنوعی وسط‌چین در ردیف آخر */
+.section-btn.ai-btn {
+  grid-column: 1 / -1;
+  max-width: 220px;
+  justify-self: center;
+  margin-top: 6px;
+}
+
 /* ========== دکمه‌های عمومی ========== */
 .btn-primary {
   background: linear-gradient(145deg, #e8d5b5, #d4c4a8);
@@ -415,6 +423,10 @@ body {
   .section-btn {
     padding: 18px 10px;
   }
+
+  .section-btn.ai-btn {
+    max-width: 100%;
+  }
 }
 
 /* ========== یادآوری ========== */
@@ -507,4 +519,3 @@ body {
 .hidden {
   display: none !important;
 }
-
