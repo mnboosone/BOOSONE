@@ -8,7 +8,6 @@ const SECTIONS = [
 
 // ==================== کلید Gemini ====================
 // فقط این خط را عوض کن و کلید خودت را بگذار
-const GEMINI_API_KEY = "AQ.Ab8RN6I41O3tOLP49EQ9m2ggT-7i-9GaICfO0DTQ0qQJSxXETg";
 
 let currentSection = null;
 let currentPersonId = null;
@@ -516,7 +515,6 @@ function deleteTextReminder(id) {
 }
 
 // ==================== هوش مصنوعی BOOS ONE ====================
-// ==================== هوش مصنوعی BOOS ONE ====================
 async function sendMessage() {
   const input = document.getElementById("chat-input");
   const message = input.value.trim();
@@ -542,30 +540,14 @@ async function sendMessage() {
   messagesDiv.scrollTop = messagesDiv.scrollHeight;
 
   try {
-    const response = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-goog-api-key": GEMINI_API_KEY
-        },
-        body: JSON.stringify({
-          contents: [{
-            role: "user",
-            parts: [{
-              text: `تو یک دستیار هوشمند به نام «BOOS ONE» هستی که مخصوص مسائل حقوقی، ملکی، آهن‌آلات، خودرو، کارخانه و محاسبات طراحی شده‌ای.
-همیشه مودب و دقیق جواب بده.
-اگر سؤال محاسباتی بود دقیق حساب کن.
-اگر سؤال حقوقی بود با احتیاط جواب بده و بگو برای تصمیم نهایی بهتر است با متخصص مشورت شود.
-هرگز نگو از چه سیستمی استفاده می‌کنی. فقط خودت را BOOS ONE معرفی کن.
-
-سؤال کاربر: ${message}`
-            }]
-          }]
-        })
-      }
-    );
+    // درخواست به Cloudflare Worker (کلید امن نگه داشته شده)
+    const response = await fetch("https://boosone-ai.mnboosone.workers.dev", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ message: message })
+    });
 
     const data = await response.json();
     document.getElementById("loading-msg")?.remove();
