@@ -31,10 +31,19 @@ jobs:
       - name: Install Bubblewrap
         run: npm install -g @bubblewrap/cli
 
-      - name: Configure Bubblewrap (non-interactive)
+      - name: Create Bubblewrap config (force non-interactive)
         run: |
-          echo "JAVA_HOME is: $JAVA_HOME"
-          bubblewrap updateConfig --jdkPath="$JAVA_HOME" --androidSdkPath="$ANDROID_HOME"
+          mkdir -p $HOME/.bubblewrap
+          cat > $HOME/.bubblewrap/config.json << EOF
+          {
+            "jdkPath": "$JAVA_HOME",
+            "androidSdkPath": "$ANDROID_HOME"
+          }
+          EOF
+          echo "=== Bubblewrap config created ==="
+          cat $HOME/.bubblewrap/config.json
+          echo "JAVA_HOME = $JAVA_HOME"
+          echo "ANDROID_HOME = $ANDROID_HOME"
 
       - name: Create twa-manifest.json and generate project
         run: |
