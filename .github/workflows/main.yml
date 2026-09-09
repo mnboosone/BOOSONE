@@ -28,48 +28,66 @@ jobs:
       - name: Install Bubblewrap
         run: npm install -g @bubblewrap/cli
 
-      - name: Create Android project (non-interactive)
+      - name: Create twa-manifest.json and generate project
         run: |
           mkdir -p android
           cd android
-          # پاسخ‌های از پیش تعریف‌شده برای سؤالات bubblewrap init
-          printf 'y\ny\ny\ny\ny\ny\ny\ny\ny\ny\ny\ny\ny\ny\ny\n' | bubblewrap init \
-            --manifest "https://mnboosone.github.io/BOOSONE/manifest.json" \
-            --directory . \
-            --packageId "com.mnboosone.boosone" \
-            --name "BOOS ONE" \
-            --launcherName "BOOS ONE" \
-            --display "standalone" \
-            --themeColor "#000000" \
-            --backgroundColor "#ffffff" \
-            --startUrl "/" \
-            --iconUrl "https://mnboosone.github.io/BOOSONE/icon-512.png" \
-            --maskableIconUrl "https://mnboosone.github.io/BOOSONE/icon-512.png" \
-            --appVersionName "1.0.0" \
-            --appVersionCode 1 \
-            --signingKeyPath "./android.keystore" \
-            --signingKeyAlias "android" \
-            --signingKeyPassword "android" \
-            --keyPassword "android" || true
+
+          cat > twa-manifest.json << 'EOF'
+          {
+            "packageId": "com.mnboosone.boosone",
+            "host": "mnboosone.github.io",
+            "name": "BOOS ONE",
+            "launcherName": "BOOS ONE",
+            "display": "standalone",
+            "themeColor": "#000000",
+            "themeColorDark": "#000000",
+            "navigationColor": "#000000",
+            "navigationColorDark": "#000000",
+            "backgroundColor": "#ffffff",
+            "enableNotifications": true,
+            "startUrl": "/BOOSONE/",
+            "iconUrl": "https://mnboosone.github.io/BOOSONE/icon-512.png",
+            "maskableIconUrl": "https://mnboosone.github.io/BOOSONE/icon-512.png",
+            "splashScreenFadeOutDuration": 300,
+            "signingKey": {
+              "path": "./android.keystore",
+              "alias": "android"
+            },
+            "appVersionName": "1.0.0",
+            "appVersionCode": 1,
+            "shortcuts": [],
+            "generatorApp": "bubblewrap-cli",
+            "webManifestUrl": "https://mnboosone.github.io/BOOSONE/manifest.json",
+            "fallbackType": "customtabs",
+            "features": {},
+            "alphaDependencies": {
+              "enabled": false
+            },
+            "enableSiteSettingsShortcut": true,
+            "isChromeOSOnly": false,
+            "isMetaQuest": false,
+            "minSdkVersion": 21,
+            "orientation": "default",
+            "fingerprints": [],
+            "additionalTrustedOrigins": [],
+            "retainedBundles": []
+          }
+          EOF
+
+          bubblewrap update --skipVersionUpgrade
 
       - name: Build APK
         working-directory: android
         run: |
-          # اگر twa-manifest.json ساخته شده باشه، بیلد می‌کنیم
-          if [ -f twa-manifest.json ]; then
-            yes "" | bubblewrap build --skipPwaValidation --skipSigning
-          else
-            echo "twa-manifest.json not found, init failed"
-            ls -la
-            exit 1
-          fi
+          bubblewrap build --skipPwaValidation --skipSigning
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
-        if: success()
         with:
           name: BOOS-ONE-APK
           path: |
             android/app-release-unsigned-aligned.apk
+            android/app-release-unsigned.apk
             android/*.apk
           if-no-files-found: warn
