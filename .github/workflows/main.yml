@@ -20,6 +20,9 @@ jobs:
           distribution: temurin
           java-version: '17'
 
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -27,6 +30,11 @@ jobs:
 
       - name: Install Bubblewrap
         run: npm install -g @bubblewrap/cli
+
+      - name: Configure Bubblewrap (non-interactive)
+        run: |
+          echo "JAVA_HOME is: $JAVA_HOME"
+          bubblewrap updateConfig --jdkPath="$JAVA_HOME" --androidSdkPath="$ANDROID_HOME"
 
       - name: Create twa-manifest.json and generate project
         run: |
