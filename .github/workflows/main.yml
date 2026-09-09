@@ -28,19 +28,48 @@ jobs:
       - name: Install Bubblewrap
         run: npm install -g @bubblewrap/cli
 
-      - name: Create Android project
+      - name: Create Android project (non-interactive)
         run: |
-          mkdir android
+          mkdir -p android
           cd android
-          yes | bubblewrap init --manifest "https://mnboosone.github.io/BOOSONE/manifest.json"
+          # پاسخ‌های از پیش تعریف‌شده برای سؤالات bubblewrap init
+          printf 'y\ny\ny\ny\ny\ny\ny\ny\ny\ny\ny\ny\ny\ny\ny\n' | bubblewrap init \
+            --manifest "https://mnboosone.github.io/BOOSONE/manifest.json" \
+            --directory . \
+            --packageId "com.mnboosone.boosone" \
+            --name "BOOS ONE" \
+            --launcherName "BOOS ONE" \
+            --display "standalone" \
+            --themeColor "#000000" \
+            --backgroundColor "#ffffff" \
+            --startUrl "/" \
+            --iconUrl "https://mnboosone.github.io/BOOSONE/icon-512.png" \
+            --maskableIconUrl "https://mnboosone.github.io/BOOSONE/icon-512.png" \
+            --appVersionName "1.0.0" \
+            --appVersionCode 1 \
+            --signingKeyPath "./android.keystore" \
+            --signingKeyAlias "android" \
+            --signingKeyPassword "android" \
+            --keyPassword "android" || true
 
       - name: Build APK
         working-directory: android
         run: |
-          yes "" | bubblewrap build --skipPwaValidation --skipSigning
+          # اگر twa-manifest.json ساخته شده باشه، بیلد می‌کنیم
+          if [ -f twa-manifest.json ]; then
+            yes "" | bubblewrap build --skipPwaValidation --skipSigning
+          else
+            echo "twa-manifest.json not found, init failed"
+            ls -la
+            exit 1
+          fi
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
+        if: success()
         with:
           name: BOOS-ONE-APK
-          path: android/app-release-unsigned-aligned.apk
+          path: |
+            android/app-release-unsigned-aligned.apk
+            android/*.apk
+          if-no-files-found: warn
