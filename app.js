@@ -570,6 +570,18 @@ async function sendMessage() {
   input.value = "";
   messagesDiv.scrollTop = messagesDiv.scrollHeight;
 
+  // بررسی آفلاین بودن
+  if (!navigator.onLine) {
+    const offlineMsg = document.createElement("div");
+    offlineMsg.style.cssText =
+      "background:#fff8e6; padding:10px 14px; border-radius:12px; margin-bottom:10px; text-align:right; border:1px solid #e0d0b0; color:#8b7355;";
+    offlineMsg.textContent =
+      "شما در حالت آفلاین هستید.\nهوش مصنوعی فقط وقتی اینترنت دارید کار می‌کند.\nبقیه امکانات (ثبت اطلاعات و ویس) بدون اینترنت هم در دسترس است.";
+    messagesDiv.appendChild(offlineMsg);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    return;
+  }
+
   // پیام در حال پردازش
   const loadingMsg = document.createElement("div");
   loadingMsg.id = "loading-msg";
@@ -1218,162 +1230,20 @@ function deleteTextReminder(id) {
   renderRemindersList();
 }
 
-// ==================== هوش مصنوعی BOOS ONE ====================
-async function sendMessage() {
+// ==================== وضعیت آنلاین / آفلاین ====================
+function updateOnlineStatus() {
+  const banner = document.getElementById("offline-banner");
+  if (!banner) return;
 
-  const input =
-    document.getElementById("chat-input");
-
-  const message =
-    input.value.trim();
-
-  if (!message) return;
-
-  const messagesDiv =
-    document.getElementById("chat-messages");
-
-  // پیام کاربر
-  const userMsg =
-    document.createElement("div");
-
-  userMsg.style.cssText =
-    "background:#e8d5b5; padding:10px 14px; border-radius:12px; margin-bottom:10px; text-align:right;";
-
-  userMsg.textContent = message;
-
-  messagesDiv.appendChild(userMsg);
-
-  input.value = "";
-
-  messagesDiv.scrollTop =
-    messagesDiv.scrollHeight;
-
-  // پیام در حال پردازش
-  const loadingMsg =
-    document.createElement("div");
-
-  loadingMsg.id = "loading-msg";
-
-  loadingMsg.style.cssText =
-    "background:#fff; padding:10px 14px; border-radius:12px; margin-bottom:10px; text-align:right; border:1px solid #e0d0b0; color:#8b7355;";
-
-  loadingMsg.textContent =
-    "در حال پردازش...";
-
-  messagesDiv.appendChild(loadingMsg);
-
-  messagesDiv.scrollTop =
-    messagesDiv.scrollHeight;
-
-  try {
-
-    const response =
-      await fetch(
-        AI_PROXY_URL,
-        {
-          method: "POST",
-
-          headers: {
-            "Content-Type":
-              "application/json"
-          },
-
-          body:
-            JSON.stringify({
-              message
-            })
-        }
-      );
-
-    let data;
-
-    try {
-
-      data =
-        await response.json();
-
-    } catch {
-
-      throw new Error(
-        "پاسخ معتبر از سرور دریافت نشد."
-      );
-    }
-
-    document
-      .getElementById("loading-msg")
-      ?.remove();
-
-    const botMsg =
-      document.createElement("div");
-
-    botMsg.style.cssText =
-      "background:#fff; padding:10px 14px; border-radius:12px; margin-bottom:10px; text-align:right; border:1px solid #e0d0b0; white-space:pre-wrap;";
-
-    if (
-      !response.ok ||
-      data?.error
-    ) {
-
-      botMsg.style.background =
-        "#fff0f0";
-
-      botMsg.style.borderColor =
-        "#e8b4b4";
-
-      botMsg.style.color =
-        "#8b3030";
-
-      botMsg.textContent =
-        "خطا: " +
-        (
-          data?.error ||
-          "ارتباط با سرویس BOOS ONE ناموفق بود."
-        );
-
-    } else if (
-      typeof data?.text === "string" &&
-      data.text.trim()
-    ) {
-
-      botMsg.textContent =
-        data.text;
-
-    } else {
-
-      botMsg.textContent =
-        "پاسخی دریافت نشد.";
-    }
-
-    messagesDiv.appendChild(botMsg);
-
-    messagesDiv.scrollTop =
-      messagesDiv.scrollHeight;
-
-  } catch (error) {
-
-    document
-      .getElementById("loading-msg")
-      ?.remove();
-
-    const errorMsg =
-      document.createElement("div");
-
-    errorMsg.style.cssText =
-      "background:#fff0f0; padding:10px 14px; border-radius:12px; margin-bottom:10px; text-align:right; border:1px solid #e8b4b4; color:#8b3030;";
-
-    errorMsg.textContent =
-      "خطای ارتباط: " +
-      (
-        error?.message ||
-        "ارتباط با سرویس برقرار نشد."
-      );
-
-    messagesDiv.appendChild(errorMsg);
-
-    messagesDiv.scrollTop =
-      messagesDiv.scrollHeight;
+  if (navigator.onLine) {
+    banner.classList.add("hidden");
+  } else {
+    banner.classList.remove("hidden");
   }
 }
+
+window.addEventListener("online", updateOnlineStatus);
+window.addEventListener("offline", updateOnlineStatus);
 
 // ==================== شروع برنامه ====================
 document.addEventListener(
@@ -1381,13 +1251,10 @@ document.addEventListener(
   () => {
 
     renderHome();
+    updateOnlineStatus();
 
-    if (
-      "serviceWorker" in navigator
-    ) {
-
-      navigator
-        .serviceWorker
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker
         .register("./sw.js")
         .catch(() => {});
     }
@@ -1395,9 +1262,7 @@ document.addEventListener(
     setTimeout(() => {
 
       const splash =
-        document.getElementById(
-          "splash-screen"
-        );
+        document.getElementById("splash-screen");
 
       if (splash) {
 
@@ -1405,32 +1270,22 @@ document.addEventListener(
 
         setTimeout(() => {
 
-          splash.style.display =
-            "none";
-
+          splash.style.display = "none";
           showPage("home-page");
 
-          const due =
-            collectAllReminders()
-              .filter(
-                r => r.isDue
-              );
+          const due = collectAllReminders().filter(r => r.isDue);
 
           if (due.length > 0) {
-
             setTimeout(() => {
-
               alert(
                 `شما ${due.length} یادآوری موعدرسیده دارید.\nبرای مشاهده به بخش «یادآوری» بروید.`
               );
-
             }, 500);
           }
 
         }, 600);
 
       } else {
-
         showPage("home-page");
       }
 
