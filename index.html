@@ -2,8 +2,10 @@
 <html lang="fa" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#E8D5B5" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="description" content="BOOS ONE - مدیریت اطلاعات و ویس‌ها" />
   <title>BOOS ONE</title>
   <link rel="stylesheet" href="style.css" />
@@ -11,6 +13,11 @@
   <link rel="apple-touch-icon" href="icon-192.png" />
 </head>
 <body>
+  <!-- نشانگر وضعیت آنلاین / آفلاین -->
+  <div id="offline-banner" class="offline-banner hidden">
+    حالت آفلاین — داده‌ها روی دستگاه شما ذخیره می‌شوند
+  </div>
+
   <!-- صفحه خوش‌آمدگویی (Splash) -->
   <div id="splash-screen">
     <div class="splash-content">
