@@ -13,6 +13,27 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
   line-height: 1.6;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* ========== بنر آفلاین ========== */
+.offline-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #5c4033;
+  color: #f5e8c7;
+  text-align: center;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  z-index: 10000;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.offline-banner.hidden {
+  display: none;
 }
 
 /* ========== صفحه خوش‌آمدگویی ========== */
@@ -74,7 +95,7 @@ body {
 .page {
   display: none;
   padding: 16px;
-  max-width: 480px;
+  max-width: 520px;
   margin: 0 auto;
   min-height: 100vh;
 }
@@ -125,15 +146,15 @@ body {
   background: linear-gradient(145deg, #f5e8c7, #e8d5b5);
   border: none;
   border-radius: 16px;
-  padding: 22px 12px;
-  font-size: 1.05rem;
+  padding: 24px 12px;
+  font-size: 1.1rem;
   font-weight: bold;
   color: #4a3728;
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(139, 115, 85, 0.18);
   transition: transform 0.2s, box-shadow 0.2s;
   animation: floatUpDown 3s ease-in-out infinite;
-  min-height: 70px;
+  min-height: 76px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -414,39 +435,73 @@ body {
   font-size: 1rem;
 }
 
-/* ========== ریسپانسیو موبایل (رفع مشکل ریز بودن دکمه‌ها) ========== */
+/* ========== ریسپانسیو موبایل (دکمه‌های بزرگ و راحت برای لمس) ========== */
 @media (max-width: 480px) {
+  .page {
+    padding: 12px 14px 30px;
+    max-width: 100%;
+  }
+
+  .header h1 {
+    font-size: 1.7rem;
+  }
+
+  .subtitle {
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+  }
+
+  .sections-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    padding-bottom: 30px;
+  }
+
+  .section-btn {
+    padding: 26px 10px;
+    font-size: 1.2rem;
+    min-height: 82px;
+    border-radius: 16px;
+    box-shadow: 0 5px 14px rgba(139, 115, 85, 0.2);
+  }
+
+  .section-btn.ai-btn {
+    grid-column: 1 / -1;
+    max-width: 85%;
+    justify-self: center;
+    font-size: 1.25rem;
+    min-height: 76px;
+    margin-top: 8px;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    padding: 14px 18px;
+    font-size: 1.05rem;
+  }
+
+  .btn-small {
+    padding: 11px 16px;
+    font-size: 0.95rem;
+  }
+
+  .form-card input,
+  .form-card textarea {
+    font-size: 1.05rem;
+    padding: 14px;
+  }
+}
+
+@media (max-width: 360px) {
   .sections-grid {
     grid-template-columns: 1fr 1fr;
     gap: 12px;
   }
 
   .section-btn {
-    padding: 20px 10px;
+    padding: 22px 8px;
     font-size: 1.12rem;
-    min-height: 68px;
-    border-radius: 14px;
-  }
-
-  .section-btn.ai-btn {
-    grid-column: 1 / -1;
-    max-width: 70%;
-    justify-self: center;
-    font-size: 1.15rem;
-    min-height: 64px;
-  }
-}
-
-@media (max-width: 360px) {
-  .sections-grid {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-
-  .section-btn {
-    padding: 18px 14px;
-    font-size: 1.15rem;
-    min-height: 64px;
+    min-height: 76px;
   }
 
   .section-btn.ai-btn {
